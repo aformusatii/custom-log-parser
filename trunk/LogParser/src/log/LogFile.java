@@ -27,15 +27,6 @@ public class LogFile {
 	private int count = 0;
 	private int delta = 0;
 	
-	public static void main(String[] args) {
-		String val = "[14F25A18968C71152D6A4317DDC4B760 quoteAndBuy.quoteSummary]	DEBUG 21/04/11 11:15:49 sent	[tomcat-http--20]	Sent request [<SOAP-ENV:Envelope ";
-		String start = "]	DEBUG ";
-		String end = " sent	[tomcat-http";
-		int beginIndex = val.indexOf(start);
-		int endIndex = val.indexOf(end);
-		System.out.println(val.substring(beginIndex + start.length(), endIndex));
-	}
-	
 	public String getPath() {
 		return path;
 	}
