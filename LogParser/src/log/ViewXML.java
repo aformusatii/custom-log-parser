@@ -1,4 +1,4 @@
-package endava.log;
+package log;
 
 import java.io.IOException;
 import java.io.PrintWriter;
