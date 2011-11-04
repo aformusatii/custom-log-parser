@@ -8,7 +8,7 @@
  *								
  *********************************************************/
 
-package endava.log;
+package log;
 
 
 public class RequestAndResponse {
