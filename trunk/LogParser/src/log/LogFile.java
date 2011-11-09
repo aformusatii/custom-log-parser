@@ -87,61 +87,65 @@ public class LogFile {
 		String _currentLine;
 		StringBuilder sb = new StringBuilder();
 		RandomAccessFile _reader = new RandomAccessFile(logFilePath, "r");
-		String firstLine = _reader.readLine();
-		
-		long lastPosition = (firstLine.equals(getFirstLine())) ? getLastPosition() : 0;
-		_reader.seek(lastPosition);
-		
-		System.out.println("Start to read from [" + getLastPosition() + "] file [" + logFilePath + "]");
-		
-		while (true) {
-			_currentLine = _reader.readLine();
-			if (_currentLine != null) {
-				
-				// Detect requests and responses
-				try {
-					if (_currentLine.contains("]	Received response [")) {
-						sb = new StringBuilder();
-						requestAndResponseFlag = true;
-					}
+		try {
+			String firstLine = _reader.readLine();
+			
+			long lastPosition = (firstLine.equals(getFirstLine())) ? getLastPosition() : 0;
+			_reader.seek(lastPosition);
+			
+			System.out.println("Start to read from [" + getLastPosition() + "] file [" + logFilePath + "]");
+			
+			while (true) {
+				_currentLine = _reader.readLine();
+				if (_currentLine != null) {
 					
-					if (requestAndResponseFlag && !"".equals(_currentLine)) {
-						//_currentLine = _currentLine.trim();
-						sb.append(_currentLine);
-						sb.append("\n");
+					// Detect requests and responses
+					try {
+						if (_currentLine.contains("]	Received response [")) {
+							sb = new StringBuilder();
+							requestAndResponseFlag = true;
+						}
+						
+						if (requestAndResponseFlag && !"".equals(_currentLine)) {
+							//_currentLine = _currentLine.trim();
+							sb.append(_currentLine);
+							sb.append("\n");
+						}
+						
+						if (requestAndResponseFlag && _currentLine.contains("</SOAP-ENV:Body></SOAP-ENV:Envelope>]")) {
+							add(sb.toString(), false);
+							requestAndResponseFlag = false;
+						}				
+						
+						// Detect single requests
+						if (_currentLine.contains("]	Sent request [<")) {
+							sb = new StringBuilder();			
+							requestFlag = true;
+						}
+						
+						if (requestFlag && !"".equals(_currentLine)) {
+							//_currentLine = _currentLine.trim();
+							sb.append(_currentLine);
+							sb.append("\n");
+						}
+						
+						if (requestFlag && _currentLine.contains("</SOAP-ENV:Body></SOAP-ENV:Envelope>]")) {
+							add(sb.toString(), true);
+							requestFlag = false;
+						}
+					} catch (Exception e) {
+						add(e);
 					}
-					
-					if (requestAndResponseFlag && _currentLine.contains("</SOAP-ENV:Body></SOAP-ENV:Envelope>]")) {
-						add(sb.toString(), false);
-						requestAndResponseFlag = false;
-					}				
-					
-					// Detect single requests
-					if (_currentLine.contains("]	Sent request [<")) {
-						sb = new StringBuilder();			
-						requestFlag = true;
-					}
-					
-					if (requestFlag && !"".equals(_currentLine)) {
-						//_currentLine = _currentLine.trim();
-						sb.append(_currentLine);
-						sb.append("\n");
-					}
-					
-					if (requestFlag && _currentLine.contains("</SOAP-ENV:Body></SOAP-ENV:Envelope>]")) {
-						add(sb.toString(), true);
-						requestFlag = false;
-					}
-				} catch (Exception e) {
-					add(e);
+				} else {
+					break;
 				}
-			} else {
-				break;
 			}
+			
+			setLastPosition(_reader.getFilePointer());
+			setFirstLine(firstLine);	
+		} finally {
+			_reader.close();
 		}
-		
-		setLastPosition(_reader.getFilePointer());
-		setFirstLine(firstLine);		
 	}
 
 }
