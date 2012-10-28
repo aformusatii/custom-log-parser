@@ -18,18 +18,22 @@ Set<Map.Entry<String, LogFile>> entries = LogReader.getFiles().entrySet();
 	</head>
 	<body>
 		<table>
-			<tr>
-				<th>File</th>
-				<th>Number of Rows</th>
-				<th>Expiry date</th>
-			</tr>
-			<% for (Map.Entry<String, LogFile> entry : entries) { %>
+			<thead>
 				<tr>
-					<td><%= entry.getKey() %></td>
-					<td><%= entry.getValue().getRows().size() %></td>
-					<td><%= entry.getValue().getExpiryDate().toString() %></td>
+					<th>File</th>
+					<th>Number of Rows</th>
+					<th>Expiry date</th>
 				</tr>
-			<% } %>
+			</thead>
+			<tbody>
+				<% for (Map.Entry<String, LogFile> entry : entries) { %>
+					<tr>
+						<td><%= entry.getKey() %></td>
+						<td><%= entry.getValue().getRows().size() %></td>
+						<td><%= entry.getValue().getExpiryDate().toString() %></td>
+					</tr>
+				<% } %>
+			</tbody>
 		</table>
 	</body>
 </html>
