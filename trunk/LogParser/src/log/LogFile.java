@@ -79,7 +79,7 @@ public class LogFile {
 	}
 	public void updateExpiryDate() {
 		Calendar calendar = Calendar.getInstance();
-		calendar.add(Calendar.MINUTE, 10);		
+		calendar.add(Calendar.MINUTE, LogHelper.LOG_FILE_EXPIRY_TIMEOUT);		
 		this.expiryDate = calendar.getTime();
 	}
 

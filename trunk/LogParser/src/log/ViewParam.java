@@ -8,20 +8,16 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import log.LogHelper.Parameter;
-
-import org.apache.commons.lang.StringEscapeUtils;
-
 /**
- * Servlet implementation class ViewXML
+ * Servlet implementation class ViewParam
  */
-public class ViewXML extends HttpServlet {
+public class ViewParam extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public ViewXML() {
+    public ViewParam() {
         super();
     }
 
@@ -50,7 +46,16 @@ public class ViewXML extends HttpServlet {
 		PrintWriter out = response.getWriter();
 		LogFile logFile = LogReader.getLogFile(logFilePath);
 		
+		if (logFile == null) {
+			try {
+				logFile = LogReader.readFile(logFilePath);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
 		LogRow row = logFile.getRows().get(index);
+		logFile.updateExpiryDate();
 
 		String content;		
 		if ("DATA".equalsIgnoreCase(paramName)) {

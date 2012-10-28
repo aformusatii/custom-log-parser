@@ -1,11 +1,39 @@
-table td, .info {font-size: 12px; padding: 1px 2px 1px 2px;}
-table {width: 100%;}
-table, table td {border: solid 1px white; border-collapse: collapse;}
-tr.request td {background-color: #FFFFFF;}
-tr.response td {background-color: #EEEEFF;}
-tr.error td {background-color: #FF4747;}
-table th {text-align: left;}
-a {color: #3B5998;}
-.search {margin-top: 10px;}
-.text_search {width: 300px;}
-.submit_search {width: 200px;}
+body {margin: 0; padding: 0; font-size: 12px; background-color: #D2EAF6;
+font-family: Tahoma,Arial,Helvetica,sans-serif;
+}
+
+table {width: 100%; border-collapse: collapse;}
+table td {border: solid 1px #FFFFFF;}
+table thead tr {background-color: #073E9C; color: #FFFFFF;}
+table tfoot tr {height: 10px;}
+table tbody tr:hover {background-color: #FFFFFF !important;}
+table tr.level_ERROR {background-color: #EE0020;}
+
+
+.topMenu {position: fixed; top: 0; left: 0; width: 100%; background-color: #152139;
+	/* -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+	filter: alpha(opacity=50);
+	-moz-opacity:0.5;
+	-khtml-opacity: 0.5;
+	opacity: 0.5; */
+}
+.topMenuPlaceHolder, .topMenu {height: 30px; padding: 5px 0 0 0;}
+.topMenu label {color: #FFFFFF; font-weight: bold;}
+
+.clrfix {clear: both; font-size: 0px; line-height: 0px; height: 0px; padding: 0; margin: 0; border: none;}
+.search {float: right; margin: 0 10px 0 0;}
+.pagination {float: left; margin: 0 0 0 0;}
+.pages {float: left; padding: 3px 0 0 5px;}
+.conf {float: left; margin: 0 0 0 10px;}
+#pageSize {width: 30px;}
+input.page {
+	color: #FFFFFF; 
+	font-weight: bold; 
+	font-size: 10px;
+	background-color: #419CE1;
+	border:none;
+	cursor:pointer;
+	padding: 0px;
+	min-width: 10px;
+}
+

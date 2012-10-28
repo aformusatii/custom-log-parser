@@ -12,13 +12,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 
-public class LogReader {
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+
+public class LogReader implements ServletContextListener {
 	
 	private static Map<String, LogFile> files = new HashMap<String, LogFile>();
-	
-	static {
-		(new LogReader()).new LogFileMemoryManager();
-	}
+	private static LogFileMemoryManager logFileMemoryManager;
 	
 	public synchronized static LogFile readFile(String filePath) throws Exception {
 		LogFile file;
@@ -30,6 +30,7 @@ public class LogReader {
 			files.put(filePath, file);
 		}
 		readFile(file);
+		file.updateExpiryDate();
 		return file;
 	}
 	
@@ -91,21 +92,24 @@ public class LogReader {
 	}
 	
 	class LogFileMemoryManager implements Runnable {
+		
+		private boolean stop = false;
+		private Thread currentThread;
 
 		public LogFileMemoryManager() {
-			Thread thread = new Thread(this);
-			thread.start();
+			currentThread = new Thread(this);
+			currentThread.start();
 		}
 		
 		@Override
 		public void run() {
-			while (true) {
+			while (!stop) {
 				try {
 					Date now = new Date();
 					List<String> keysToRemove = new ArrayList<String>();
 					for (Map.Entry<String, LogFile> entry : files.entrySet()) {
 						Date expiryDate = entry.getValue().getExpiryDate();
-						if (expiryDate.before(now)) {
+						if ((expiryDate != null) && expiryDate.before(now)) {
 							keysToRemove.add(entry.getKey());
 						}
 					}
@@ -120,11 +124,26 @@ public class LogReader {
 				
 				try {
 					Thread.sleep(1000 * 60);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+				} catch (InterruptedException e) {}
 			}
+			System.out.println("LogFileMemoryManager stoped.");
 		}
+		
+		public void stop() {
+			stop = true;
+			currentThread.interrupt();
+		}
+	}
+
+	@Override
+	public void contextDestroyed(ServletContextEvent arg0) {
+		logFileMemoryManager.stop();
+	}
+
+	@Override
+	public void contextInitialized(ServletContextEvent arg0) {
+		logFileMemoryManager = (new LogReader()).new LogFileMemoryManager();
+		LogHelper.loadProperties();
 	}
 
 }

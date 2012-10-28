@@ -21,6 +21,7 @@ public final class LogHelper {
 	public static HashMap<String, List<Parameter>> separateParamsMap = new HashMap<String, List<Parameter>>();
 	public static final String ROW_TYPE_INFO = "INFO";
 	public static final int DEFAULT_PAGE_SIZE = 100;
+	public static final int LOG_FILE_EXPIRY_TIMEOUT = 20;
 	public static final String NEW_LINE = "&_new_line";
 
 	public static void loadProperties() {
