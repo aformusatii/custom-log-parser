@@ -8,19 +8,24 @@
 	LogHelper.loadProperties();
 	
 	String filePath = request.getParameter("file");
+	if (LogHelper.isBlank(filePath)) {
+		response.sendError(400);
+		return;
+	}
+
 	LogFile logFile = LogReader.readFile(filePath);
 	
-	logFile.updateLastUsage();
+	logFile.updateExpiryDate();
 	
 	String pageStr = request.getParameter("page");
 	int currentPage = 1;
-	if (pageStr != null) {
+	if (LogHelper.isNotBlank(pageStr)) {
 		currentPage = Integer.valueOf(pageStr);
 	}
 	
 	String pageSizeStr = request.getParameter("pageSize");
 	int pageSize = LogHelper.DEFAULT_PAGE_SIZE;
-	if (pageSizeStr != null) {
+	if (LogHelper.isNotBlank(pageSizeStr)) {
 		pageSize = Integer.valueOf(pageSizeStr);
 	}
 	
