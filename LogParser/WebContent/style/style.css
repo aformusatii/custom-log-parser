@@ -4,6 +4,7 @@ table, table td {border: solid 1px white; border-collapse: collapse;}
 tr.request td {background-color: #FFFFFF;}
 tr.response td {background-color: #EEEEFF;}
 tr.error td {background-color: #FF4747;}
+table th {text-align: left;}
 a {color: #3B5998;}
 .search {margin-top: 10px;}
 .text_search {width: 300px;}

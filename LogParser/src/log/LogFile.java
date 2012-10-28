@@ -1,12 +1,8 @@
 package log;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-
-import ucar.unidata.io.RandomAccessFile;
 
 /**********************************************************
  *
@@ -23,9 +19,8 @@ public class LogFile {
 	private String path;
 	private long lastPosition;
 	private String firstLine;
-	private List<RequestAndResponse> requestsAndResponses = new LinkedList<RequestAndResponse>();
-	private int count = 0;
-	private int delta = 0;
+	private List<LogRow> rows = new LinkedList<LogRow>();
+	private Date lastUsage = new Date();
 	
 	public String getPath() {
 		return path;
@@ -39,113 +34,50 @@ public class LogFile {
 	public void setLastPosition(long lastPosition) {
 		this.lastPosition = lastPosition;
 	}
-	public List<RequestAndResponse> getRequestsAndResponses() {
-		return requestsAndResponses;
-	}
 	public String getFirstLine() {
 		return firstLine;
 	}
 	public void setFirstLine(String firstLine) {
 		this.firstLine = firstLine;
 	}
-	public void setRequestsAndResponses(
-			List<RequestAndResponse> requestsAndResponses) {
-		this.requestsAndResponses = requestsAndResponses;
+	
+	public void addRow(LogRow row) {
+		rows.add(row);
 	}
-	public int getDelta() {
-		return delta;
+	
+	public List<LogRow> getRows() {
+		return rows;
 	}
+	
+	public List<LogRow> getRows(int currentPage, int pageSize) {
+		int total = getNumberOfRows();
+		int pages = (total / pageSize) + (((total % pageSize) > 0) ? 1 : 0);
+		pages = (pages < 1) ? 1 : pages;
+		currentPage = ((currentPage < 1) || (currentPage > pages)) ? pages : currentPage;
+		int fromIndex = (currentPage * pageSize) - pageSize;
+		int toIndex = (currentPage * pageSize);
+		if (toIndex > total) {
+			toIndex = total;
+		}
 
-	public void add(String data, boolean onlyRequest) throws Exception {
-		RequestAndResponse request = new RequestAndResponse(count++, data, onlyRequest);
-		requestsAndResponses.add(request);
-		if (requestsAndResponses.size() > 5000) {
-			((LinkedList) requestsAndResponses).removeFirst();
-			delta++;
-		}
+		return rows.subList(fromIndex, toIndex);
 	}
 	
-	public void add(Exception e) throws Exception {
-		RequestAndResponse request = new RequestAndResponse(count++, getStackTrace(e));
-		requestsAndResponses.add(request);
-		if (requestsAndResponses.size() > 5000) {
-			((LinkedList) requestsAndResponses).removeFirst();
-			delta++;
-		}
+	public int getNumberOfPages(int pageSize) {
+		int total = getNumberOfRows();
+		int pages = (total / pageSize) + (((total % pageSize) > 0) ? 1 : 0);
+		pages = (pages < 1) ? 1 : pages;
+		return pages;
 	}
 	
-	public static String getStackTrace(Exception e) {
-	    final Writer result = new StringWriter();
-	    final PrintWriter printWriter = new PrintWriter(result);
-	    e.printStackTrace(printWriter);
-	    return result.toString();
-    }	
-	
-	public void parse(String logFilePath) throws Exception {
-		boolean requestFlag = false;
-		boolean requestAndResponseFlag = false;
-		String _currentLine;
-		StringBuilder sb = new StringBuilder();
-		RandomAccessFile _reader = new RandomAccessFile(logFilePath, "r");
-		try {
-			String firstLine = _reader.readLine();
-			
-			long lastPosition = (firstLine.equals(getFirstLine())) ? getLastPosition() : 0;
-			_reader.seek(lastPosition);
-			
-			System.out.println("Start to read from [" + getLastPosition() + "] file [" + logFilePath + "]");
-			
-			while (true) {
-				_currentLine = _reader.readLine();
-				if (_currentLine != null) {
-					
-					// Detect requests and responses
-					try {
-						if (_currentLine.contains("]	Received response [")) {
-							sb = new StringBuilder();
-							requestAndResponseFlag = true;
-						}
-						
-						if (requestAndResponseFlag && !"".equals(_currentLine)) {
-							//_currentLine = _currentLine.trim();
-							sb.append(_currentLine);
-							sb.append("\n");
-						}
-						
-						if (requestAndResponseFlag && _currentLine.contains("</SOAP-ENV:Body></SOAP-ENV:Envelope>]")) {
-							add(sb.toString(), false);
-							requestAndResponseFlag = false;
-						}				
-						
-						// Detect single requests
-						if (_currentLine.contains("]	Sent request [<")) {
-							sb = new StringBuilder();			
-							requestFlag = true;
-						}
-						
-						if (requestFlag && !"".equals(_currentLine)) {
-							//_currentLine = _currentLine.trim();
-							sb.append(_currentLine);
-							sb.append("\n");
-						}
-						
-						if (requestFlag && _currentLine.contains("</SOAP-ENV:Body></SOAP-ENV:Envelope>]")) {
-							add(sb.toString(), true);
-							requestFlag = false;
-						}
-					} catch (Exception e) {
-						add(e);
-					}
-				} else {
-					break;
-				}
-			}
-			
-			setLastPosition(_reader.getFilePointer());
-			setFirstLine(firstLine);	
-		} finally {
-			_reader.close();
-		}
+	public int getNumberOfRows() {
+		return rows.size();
+	}
+	public Date getLastUsage() {
+		return lastUsage;
+	}
+	public void updateLastUsage() {
+		this.lastUsage = new Date();
 	}
 
 }

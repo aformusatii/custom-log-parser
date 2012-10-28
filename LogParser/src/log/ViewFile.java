@@ -41,7 +41,7 @@ public class ViewFile extends HttpServlet {
 	
 	private void process(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.setContentType("text/plain");
-		String logFilePath = request.getParameter("logFile");
+		String logFilePath = request.getParameter("file");
 		OutputStream os = response.getOutputStream();
 		FileInputStream fis = new FileInputStream(new File(logFilePath));
 		try {
