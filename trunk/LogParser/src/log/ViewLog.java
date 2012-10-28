@@ -1,13 +1,10 @@
 package log;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -86,7 +83,7 @@ public class ViewLog extends HttpServlet {
         if (logFilePath == null || "".equals(logFilePath.trim())) {
         	out.println("Can not find file: [" + logFilePath + "]");
         } else {
-			File f = new File(logFilePath);
+			/* File f = new File(logFilePath);
 			if (f.exists()) {
 				LogFile logFile = getLogFile(logFilePath);
 				logFile.parse(logFilePath);
@@ -149,7 +146,7 @@ public class ViewLog extends HttpServlet {
 				out.println("</table>");
 			} else {
 				out.println("Can not find file: [" + logFilePath + "]");	
-			}
+			} */
         }
 		
         String action = request.getRequestURI();

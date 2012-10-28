@@ -8,6 +8,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import log.LogHelper.Parameter;
+
 import org.apache.commons.lang.StringEscapeUtils;
 
 /**
@@ -38,16 +40,31 @@ public class ViewXML extends HttpServlet {
 	}
 	
 	private void process(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String logFilePath = request.getParameter("logFile");
+		String logFilePath = request.getParameter("file");
 		Integer index = Integer.valueOf(request.getParameter("index"));
-		boolean showResponse = "true".equals(request.getParameter("showResponse"));
-		boolean showText = "true".equals(request.getParameter("showText"));
-		response.setContentType(showText ? "text/plain" : "text/xml");
-		PrintWriter out = response.getWriter();
-		LogFile logFile = ViewLog.getLogFile(logFilePath);
+		String paramName = request.getParameter("param");
+		String contentType = request.getParameter("contentType");
+		//response.setContentType(showText ? "text/plain" : "text/xml");
+		response.setContentType(contentType);
 		
-		RequestAndResponse requestAndResponse = logFile.getRequestsAndResponses().get(index - logFile.getDelta());
-		String content = showResponse ? requestAndResponse.getResponse() : requestAndResponse.getRequest();
+		PrintWriter out = response.getWriter();
+		LogFile logFile = LogReader.getLogFile(logFilePath);
+		
+		LogRow row = logFile.getRows().get(index);
+
+		String content;		
+		if ("DATA".equalsIgnoreCase(paramName)) {
+			content = row.getData();
+			
+		} else {
+			LogParameter param = row.getParameter(paramName);
+			if (param != null) {
+				content = param.getValue();
+			} else {
+				content = "No data for: Parameter [" + paramName + "] LogFile [" + logFilePath + "]";
+			}
+		}
+
 		out.write(content);
         out.flush();
         out.close();
