@@ -216,6 +216,14 @@ public final class LogHelper {
 	    final PrintWriter printWriter = new PrintWriter(result);
 	    e.printStackTrace(printWriter);
 	    return result.toString();
-    }	
+    }
+	
+	public static boolean isNotBlank(String value) {
+		return !isBlank(value);
+	}
+	
+	public static boolean isBlank(String value) {
+		return (value == null) || ("".equals(value.trim()));
+	}
 	
 }

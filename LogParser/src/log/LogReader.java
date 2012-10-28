@@ -6,7 +6,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -102,13 +101,11 @@ public class LogReader {
 		public void run() {
 			while (true) {
 				try {
-					Calendar calendar = Calendar.getInstance();
-					calendar.add(Calendar.MINUTE, -10);
-					
+					Date now = new Date();
 					List<String> keysToRemove = new ArrayList<String>();
 					for (Map.Entry<String, LogFile> entry : files.entrySet()) {
-						Date lastUsage = entry.getValue().getLastUsage();
-						if (lastUsage.before(calendar.getTime())) {
+						Date expiryDate = entry.getValue().getExpiryDate();
+						if (expiryDate.before(now)) {
 							keysToRemove.add(entry.getKey());
 						}
 					}

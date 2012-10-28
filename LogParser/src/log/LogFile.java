@@ -1,5 +1,6 @@
 package log;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -20,7 +21,7 @@ public class LogFile {
 	private long lastPosition;
 	private String firstLine;
 	private List<LogRow> rows = new LinkedList<LogRow>();
-	private Date lastUsage = new Date();
+	private Date expiryDate;
 	
 	public String getPath() {
 		return path;
@@ -73,11 +74,13 @@ public class LogFile {
 	public int getNumberOfRows() {
 		return rows.size();
 	}
-	public Date getLastUsage() {
-		return lastUsage;
+	public Date getExpiryDate() {
+		return expiryDate;
 	}
-	public void updateLastUsage() {
-		this.lastUsage = new Date();
+	public void updateExpiryDate() {
+		Calendar calendar = Calendar.getInstance();
+		calendar.add(Calendar.MINUTE, 10);		
+		this.expiryDate = calendar.getTime();
 	}
 
 }
