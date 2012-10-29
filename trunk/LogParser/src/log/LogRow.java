@@ -9,6 +9,7 @@ import log.LogHelper.Parameter;
 
 public class LogRow {
 	
+	private int index;
 	private StringBuilder data = new StringBuilder();
 	private String type = LogHelper.ROW_TYPE_INFO;
 	private Map<String, LogParameter> paramsMap = new HashMap<String, LogParameter>();
@@ -22,6 +23,16 @@ public class LogRow {
 		return data.toString().replaceAll(LogHelper.NEW_LINE, "\n");
 	}
 	
+	public String getDataWithoutNewLine() {
+		return data.toString();
+	}
+	
+	public String getPreview() {
+		int length = data.length();
+		int endIndex = (length > 255) ? 255 : length;
+		return data.substring(0, endIndex);
+	}
+	
 	public String getType() {
 		return type;
 	}
@@ -30,9 +41,17 @@ public class LogRow {
 		return paramsMap.get(key);
 	}
 
+	public int getIndex() {
+		return index;
+	}
+
+	public void setIndex(int index) {
+		this.index = index;
+	}
+
 	public void parse() {
 		if (parsed) {return;}
-		String dataStr = data.toString();
+		String dataStr = data.toString().replaceAll("\\r", "").trim();
 		if (!dataStr.isEmpty()) {
 			for (LogHelper.RowType rowType : LogHelper.rowTypes) {
 				if (rowType.matches(dataStr)) {

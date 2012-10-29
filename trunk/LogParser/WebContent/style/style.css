@@ -1,13 +1,28 @@
-body {margin: 0; padding: 0; font-size: 12px; background-color: #D2EAF6;
-font-family: Tahoma,Arial,Helvetica,sans-serif;
+body {
+	margin: 0; padding: 0;
+	font-size: 12px; background-color: #D2EAF6;
+	font-family: Tahoma,Arial,Helvetica,sans-serif;
 }
 
 table {width: 100%; border-collapse: collapse;}
 table td {border: solid 1px #FFFFFF;}
 table thead tr {background-color: #073E9C; color: #FFFFFF;}
-table tfoot tr {height: 10px;}
 table tbody tr:hover {background-color: #FFFFFF !important;}
 table tr.level_ERROR {background-color: #EE0020;}
+table tr.type_REQ {background-color: #C7DEEA;}
+table tr.type_REQRESP {background-color: #C7DBE5;}
+table tfoot tr input {
+	color: #FFFFFF; 
+	font-weight: bold; 
+	font-size: 12px;
+	background-color: #419CE1;
+	border:none;
+	cursor:pointer;
+	padding: 0px;
+	width: 100%;
+	display: block;
+}
+table a {color: #065FBA;}
 
 
 .topMenu {position: fixed; top: 0; left: 0; width: 100%; background-color: #152139;
@@ -17,7 +32,7 @@ table tr.level_ERROR {background-color: #EE0020;}
 	-khtml-opacity: 0.5;
 	opacity: 0.5; */
 }
-.topMenuPlaceHolder, .topMenu {height: 30px; padding: 5px 0 0 0;}
+.topMenuPlaceHolder, .topMenu {min-height: 30px; padding: 5px 0 0 0;}
 .topMenu label {color: #FFFFFF; font-weight: bold;}
 
 .clrfix {clear: both; font-size: 0px; line-height: 0px; height: 0px; padding: 0; margin: 0; border: none;}
@@ -25,6 +40,7 @@ table tr.level_ERROR {background-color: #EE0020;}
 .pagination {float: left; margin: 0 0 0 0;}
 .pages {float: left; padding: 3px 0 0 5px;}
 .conf {float: left; margin: 0 0 0 10px;}
+span.text {color: #FFFFFF;}
 #pageSize {width: 30px;}
 input.page {
 	color: #FFFFFF; 
@@ -34,6 +50,9 @@ input.page {
 	border:none;
 	cursor:pointer;
 	padding: 0px;
-	min-width: 10px;
+	min-width: 15px;
 }
-
+input.page.selected {
+	background-color: #FFFFFF;
+	color: #419CE1; 
+}
