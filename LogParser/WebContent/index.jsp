@@ -13,6 +13,14 @@
 		}
 		return result;
 	}
+
+	public String createHiddenInput(String paramName, String value) {
+		String result = "";
+		if (LogHelper.isNotBlank(value)) {
+			result ="<input type=\"hidden\" name=\"" + paramName + "\" value=\"" + value + "\">";
+		}
+		return result;
+	}
 %>
 
 <%
@@ -24,10 +32,20 @@
 
 	LogFile logFile = LogReader.readFile(filePath);
 	
-	String pageStr = request.getParameter("page");
+	String reloadLastPage = request.getParameter("reloadLastPage");
+	
+	String setPageStr = request.getParameter("setPage");
+	String pageStr = LogHelper.isBlank(setPageStr) ? request.getParameter("page") : setPageStr;
 	int currentPage = 1;
 	if (LogHelper.isNotBlank(pageStr)) {
 		currentPage = Integer.valueOf(pageStr);
+	}
+
+	String movePage = request.getParameter("movePage");
+	if ("<".equals(movePage)) {
+		currentPage -= 1;
+	} else if (">".equals(movePage)) {
+		currentPage += 1;
 	}
 	
 	String pageSizeStr = request.getParameter("pageSize");
@@ -36,16 +54,28 @@
 		pageSize = Integer.valueOf(pageSizeStr);
 	}
 	
-	List<LogRow> rows = logFile.getRows(currentPage, pageSize);
+	pageSize = (pageSize < 10) ? 10 : pageSize;
 	
 	String searchText = request.getParameter("searchText");
+	String searchType = request.getParameter("searchType");
 	if (searchText == null) {
 		searchText = "";
 	}
+
+	List<LogRow> allRows = logFile.getRows(searchText,searchType);
+	int total = allRows.size();
+	int numberOfPages = LogHelper.calculateNumberOfPages(total, pageSize);
 	
-	String searchType = request.getParameter("searchType");
-	
-	int numberOfPages = logFile.getNumberOfPages(pageSize);
+	currentPage = LogHelper.isNotBlank(reloadLastPage) ? numberOfPages : currentPage;
+	currentPage = (currentPage < 1) ? 1 : currentPage;
+	currentPage = (currentPage > numberOfPages) ? numberOfPages : currentPage;
+	int fromIndex = (currentPage * pageSize) - pageSize;
+	int toIndex = (currentPage * pageSize);
+	if (toIndex > total) {
+		toIndex = total;
+	}
+
+	List<LogRow> rows = allRows.subList(fromIndex, toIndex);
 %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -58,16 +88,30 @@
 	<body>
 		<form method="get">
 			<%= createHiddenInput(request, "file") %>
-			<%= createHiddenInput(request, "page") %>
+			<%= createHiddenInput("page", String.valueOf(currentPage)) %>
 			<div class="topMenu">
 				
 				<div class="pagination">
 					<div class="pages"">
-						<input class="page" type="submit" name="move" value="<">
-						<% for (int i = 1; i <= numberOfPages; i++) { %>
-							<input class="page" type="submit" name="setPage" value="<%= i %>">
+						<input class="page" type="submit" name="movePage" value="<">
+						<%
+							int firstPage = currentPage - 5;
+							firstPage = (firstPage < 1) ? 1 : firstPage; 
+							int lastPage = firstPage + 10;
+							lastPage = (lastPage > numberOfPages) ? numberOfPages : lastPage;
+							firstPage = lastPage - 10;
+							firstPage = (firstPage < 1) ? 1 : firstPage;
+						%>
+						<% if (firstPage != 1) { %>
+						 	<input class="page" type="submit" name="setPage" value="<%= 1 %>"> <span class="text">...</span>
 						<% } %>
-						<input class="page" type="submit" name="move" value=">">
+						<% for (int i = firstPage; i <= lastPage; i++) { %>
+							<input class="page <%= ((i == currentPage) ? "selected" : "") %>" type="submit" name="setPage" value="<%= i %>">
+						<% } %>
+						<% if (lastPage != numberOfPages) { %>
+							<span class="text">...</span> <input class="page" type="submit" name="setPage" value="<%= numberOfPages %>"> 
+						<% } %>
+						<input class="page" type="submit" name="movePage" value=">">
 					</div>
 					<div class="conf">
 						<label for="pageSize">Page size: </label>
@@ -75,6 +119,7 @@
 					</div>
 					<div class="clrfix"></div>	
 				</div>
+				
 				<div class="search">
 					<label for="search_text">Search:</label>
 					<input type="radio" name="searchType" id="search_simple" value="simple" <%= (((searchType == null) || "simple".equals(searchType)) ? "checked=\"checked\"" : "") %>>
@@ -87,31 +132,54 @@
 				<div class="clrfix"></div>
 			</div>
 			<div class="topMenuPlaceHolder"></div>
+			
 			<div class="list">	
 				<table>
 					<thead>
-						<tr>	
+						<tr>
 							<th>Session</th>
 							<th>Date</th>
 							<th>Flow Path</th>
 							<th>Level</th>
 							<th>Thread</th>
+							
+							<th>Original</th>
+							<th>Request</th>
+							<th>Response</th>
 						</tr>	
 					</thead>	
 					<tbody>
 						<% for (LogRow row : rows) { row.parse(); %>
-							<tr class="level_<%= row.getParameter("LEVEL").getValue() %>">		
+							<tr class="level_<%= row.getParameter("LEVEL").getValue() %> type_<%= row.getType() %>">		
 								<td><%= row.getParameter("SESSION").getValue() %></td>			
 								<td><%= row.getParameter("DATE").getValue() %></td>
 								<td><%= row.getParameter("FLOW_PATH").getValue() %></td>
 								<td><%= row.getParameter("LEVEL").getValue() %></td>
 								<td><%= row.getParameter("THREAD").getValue() %></td>
+								<td align="center">
+									<a href="ViewParam?file=<%= filePath %>&index=<%= row.getIndex() %>&param=DATA" target="log_<%= row.getIndex() %>">View</a>									
+								</td>
+								<% if ("REQ".equals(row.getType())) { %>
+									<td align="center">
+										<a href="ViewParam?file=<%= filePath %>&index=<%= row.getIndex() %>&param=REQUEST_1&contentType=text/xml" target="req_log_<%= row.getIndex() %>">Request</a>
+										<%= (row.getParameter("TEST1") != null) ? row.getParameter("TEST1").getValue() : "" %>
+									</td>
+									<td>&nbsp;</td>
+								<% } else if ("REQRESP".equals(row.getType())) { %>
+									<td align="center"><a href="ViewParam?file=<%= filePath %>&index=<%= row.getIndex() %>&param=REQUEST_2&contentType=text/xml" target="req_log_<%= row.getIndex() %>">Request</a></td>
+									<td align="center"><a href="ViewParam?file=<%= filePath %>&index=<%= row.getIndex() %>&param=RESPONSE_2&contentType=text/xml" target="resp_log_<%= row.getIndex() %>">Response</a></td>
+								<% } else { %>
+									<td>&nbsp;</td>
+									<td>&nbsp;</td>
+								<% } %>								
 							</tr>
 						<% } %>
 					</tbody>
 					<tfoot>
 						<tr>
-							<td colspan="5"></td>
+							<td id="bottom" colspan="8" align="center">
+								<input type="submit" name="reloadLastPage" value="Reload last page">
+							</td>
 						</tr>
 					</tfoot>
 				</table>

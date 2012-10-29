@@ -227,4 +227,10 @@ public final class LogHelper {
 		return (value == null) || ("".equals(value.trim()));
 	}
 	
+	public static int calculateNumberOfPages(int total, int pageSize) {
+		int pages = (total / pageSize) + (((total % pageSize) > 0) ? 1 : 0);
+		pages = (pages < 1) ? 1 : pages;
+		return pages;
+	}
+	
 }

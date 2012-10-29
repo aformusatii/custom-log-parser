@@ -4,6 +4,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**********************************************************
  *
@@ -22,6 +23,7 @@ public class LogFile {
 	private String firstLine;
 	private List<LogRow> rows = new LinkedList<LogRow>();
 	private Date expiryDate;
+	private int rowCount = 0;
 	
 	public String getPath() {
 		return path;
@@ -43,40 +45,41 @@ public class LogFile {
 	}
 	
 	public void addRow(LogRow row) {
+		row.setIndex(rowCount++);
 		rows.add(row);
+	}
+	
+	public List<LogRow> getRows(String searchText, String searchType) {
+		if (LogHelper.isNotBlank(searchText)) {
+			List<LogRow> result = new LinkedList<LogRow>();
+			if ("regex".equals(searchType)) {
+				Pattern p = Pattern.compile(searchText);
+				for (LogRow row : rows) {
+					if (p.matcher(row.getDataWithoutNewLine()).matches()) {
+						result.add(row);	
+					}
+				}				
+			} else {
+				for (LogRow row : rows) {
+					if (row.getDataWithoutNewLine().toLowerCase().contains(searchText.toLowerCase())) {
+						result.add(row);	
+					}
+				}
+			}
+			return result;
+		} else {
+			return rows;
+		}
 	}
 	
 	public List<LogRow> getRows() {
 		return rows;
 	}
-	
-	public List<LogRow> getRows(int currentPage, int pageSize) {
-		int total = getNumberOfRows();
-		int pages = (total / pageSize) + (((total % pageSize) > 0) ? 1 : 0);
-		pages = (pages < 1) ? 1 : pages;
-		currentPage = ((currentPage < 1) || (currentPage > pages)) ? pages : currentPage;
-		int fromIndex = (currentPage * pageSize) - pageSize;
-		int toIndex = (currentPage * pageSize);
-		if (toIndex > total) {
-			toIndex = total;
-		}
 
-		return rows.subList(fromIndex, toIndex);
-	}
-	
-	public int getNumberOfPages(int pageSize) {
-		int total = getNumberOfRows();
-		int pages = (total / pageSize) + (((total % pageSize) > 0) ? 1 : 0);
-		pages = (pages < 1) ? 1 : pages;
-		return pages;
-	}
-	
-	public int getNumberOfRows() {
-		return rows.size();
-	}
 	public Date getExpiryDate() {
 		return expiryDate;
 	}
+
 	public void updateExpiryDate() {
 		Calendar calendar = Calendar.getInstance();
 		calendar.add(Calendar.MINUTE, LogHelper.LOG_FILE_EXPIRY_TIMEOUT);		

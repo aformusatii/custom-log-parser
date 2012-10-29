@@ -41,6 +41,7 @@ public class ViewParam extends HttpServlet {
 		String paramName = request.getParameter("param");
 		String contentType = request.getParameter("contentType");
 		//response.setContentType(showText ? "text/plain" : "text/xml");
+		contentType = LogHelper.isBlank(contentType) ? "text/plain" : contentType;  
 		response.setContentType(contentType);
 		
 		PrintWriter out = response.getWriter();
@@ -54,23 +55,28 @@ public class ViewParam extends HttpServlet {
 			}
 		}
 		
-		LogRow row = logFile.getRows().get(index);
-		logFile.updateExpiryDate();
-
-		String content;		
-		if ("DATA".equalsIgnoreCase(paramName)) {
-			content = row.getData();
-			
-		} else {
-			LogParameter param = row.getParameter(paramName);
-			if (param != null) {
-				content = param.getValue();
+		String content;
+		int size = logFile.getRows().size();
+		if (size > index) {
+			LogRow row = logFile.getRows().get(index);
+			logFile.updateExpiryDate();
+		
+			if ("DATA".equalsIgnoreCase(paramName)) {
+				content = row.getData();
+				
 			} else {
-				content = "No data for: Parameter [" + paramName + "] LogFile [" + logFilePath + "]";
+				LogParameter param = row.getParameter(paramName);
+				if (param != null) {
+					content = param.getValue();
+				} else {
+					content = "No data for: Parameter [" + paramName + "] LogFile [" + logFilePath + "]";
+				}
 			}
+		} else {
+			content = "Can't find row with id = " + index + " please reload the list and open this row again.";
 		}
 
-		out.write(content);
+		out.write(content.replaceAll("\\r", "").trim());
         out.flush();
         out.close();
 	}
