@@ -83,10 +83,11 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<title><%= filePath %></title>
 		<link rel="stylesheet" type="text/css" media="all" href="style/style.css" />
+		<script type="text/javascript" src="javascript/jquery-1.8.2.min.js"></script>
 		<script type="text/javascript" src="javascript/script.js"></script>
 	</head>
 	<body>
-		<form method="get">
+		<form method="get" action="index.jsp">
 			<%= createHiddenInput(request, "file") %>
 			<%= createHiddenInput("page", String.valueOf(currentPage)) %>
 			<div class="topMenu">
@@ -141,36 +142,39 @@
 							<th>Date</th>
 							<th>Flow Path</th>
 							<th>Level</th>
-							<th>Thread</th>
 							
 							<th>Original</th>
 							<th>Request</th>
 							<th>Response</th>
+							<th>Preview</th>
 						</tr>	
 					</thead>	
 					<tbody>
 						<% for (LogRow row : rows) { row.parse(); %>
-							<tr class="level_<%= row.getParameter("LEVEL").getValue() %> type_<%= row.getType() %>">		
-								<td><%= row.getParameter("SESSION").getValue() %></td>			
-								<td><%= row.getParameter("DATE").getValue() %></td>
-								<td><%= row.getParameter("FLOW_PATH").getValue() %></td>
-								<td><%= row.getParameter("LEVEL").getValue() %></td>
-								<td><%= row.getParameter("THREAD").getValue() %></td>
+							<tr class="level_<%= row.getParameterValue("LEVEL") %> type_<%= row.getType() %>">		
+								<td><%= row.getParameterValue("SESSION") %></td>			
+								<td><%= row.getParameterValue("DATE") %></td>
+								<td><%= row.getParameterValue("FLOW_PATH") %></td>
+								<td><%= row.getParameterValue("LEVEL") %></td>
 								<td align="center">
 									<a href="ViewParam?file=<%= filePath %>&index=<%= row.getIndex() %>&param=DATA" target="log_<%= row.getIndex() %>">View</a>									
 								</td>
 								<% if ("REQ".equals(row.getType())) { %>
-									<td align="center">
+									<td class="link" align="center">
 										<a href="ViewParam?file=<%= filePath %>&index=<%= row.getIndex() %>&param=REQUEST_1&contentType=text/xml" target="req_log_<%= row.getIndex() %>">Request</a>
-										<%= (row.getParameter("TEST1") != null) ? row.getParameter("TEST1").getValue() : "" %>
 									</td>
 									<td>&nbsp;</td>
+									<td><%= row.getParameterValue("PREV_1") %></td>
 								<% } else if ("REQRESP".equals(row.getType())) { %>
-									<td align="center"><a href="ViewParam?file=<%= filePath %>&index=<%= row.getIndex() %>&param=REQUEST_2&contentType=text/xml" target="req_log_<%= row.getIndex() %>">Request</a></td>
-									<td align="center"><a href="ViewParam?file=<%= filePath %>&index=<%= row.getIndex() %>&param=RESPONSE_2&contentType=text/xml" target="resp_log_<%= row.getIndex() %>">Response</a></td>
+									<td class="link" align="center"><a href="ViewParam?file=<%= filePath %>&index=<%= row.getIndex() %>&param=REQUEST_2&contentType=text/xml" target="req_log_<%= row.getIndex() %>">Request</a></td>
+									<td class="link" align="center">
+										<a href="ViewParam?file=<%= filePath %>&index=<%= row.getIndex() %>&param=RESPONSE_2&contentType=text/xml" target="resp_log_<%= row.getIndex() %>">Response</a>
+									</td>
+									<td><%= row.getParameterValue("PREV_2") %></td>
 								<% } else { %>
 									<td>&nbsp;</td>
 									<td>&nbsp;</td>
+									<td><%= row.getParameterValue("OTHER") %></td>
 								<% } %>								
 							</tr>
 						<% } %>
@@ -183,6 +187,9 @@
 						</tr>
 					</tfoot>
 				</table>
+				<%	if (LogHelper.isNotBlank(reloadLastPage)) { %>
+					<script type="text/javascript">afterReload();</script>
+				<% } %>				
 			</div>
 		</form>
 	</body>

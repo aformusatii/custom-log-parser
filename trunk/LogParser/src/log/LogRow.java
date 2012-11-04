@@ -29,7 +29,7 @@ public class LogRow {
 	
 	public String getPreview() {
 		int length = data.length();
-		int endIndex = (length > 255) ? 255 : length;
+		int endIndex = (length > 50) ? 50 : length;
 		return data.substring(0, endIndex);
 	}
 	
@@ -39,6 +39,15 @@ public class LogRow {
 	
 	public LogParameter getParameter(String key) {
 		return paramsMap.get(key);
+	}
+	
+	public String getParameterValue(String key) {
+		if (paramsMap.containsKey(key)) {
+			String value = paramsMap.get(key).getValue();
+			return LogHelper.isBlank(value) ? "-" : LogHelper.escapeHtml(value);
+		} else {
+			return "-";
+		}
 	}
 
 	public int getIndex() {
@@ -51,8 +60,9 @@ public class LogRow {
 
 	public void parse() {
 		if (parsed) {return;}
-		String dataStr = data.toString().replaceAll("\\r", "").trim();
+		String dataStr = data.toString().replaceAll("\\r", "").replaceAll(LogHelper.NEW_LINE + "$", "").trim();
 		if (!dataStr.isEmpty()) {
+			//System.out.println("[" + dataStr + "]");
 			for (LogHelper.RowType rowType : LogHelper.rowTypes) {
 				if (rowType.matches(dataStr)) {
 					type = LogHelper.ROW_TYPE_INFO.equals(rowType.getType()) ? type : rowType.getType();
