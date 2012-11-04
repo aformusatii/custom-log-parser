@@ -13,6 +13,8 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
+
 public final class LogHelper {
 	
 	public static Pattern ROW_PATTERN;
@@ -20,7 +22,7 @@ public final class LogHelper {
 	public static HashMap<String, List<Parameter>> paramsMap = new HashMap<String, List<Parameter>>();
 	public static HashMap<String, List<Parameter>> separateParamsMap = new HashMap<String, List<Parameter>>();
 	public static final String ROW_TYPE_INFO = "INFO";
-	public static final int DEFAULT_PAGE_SIZE = 100;
+	public static final int DEFAULT_PAGE_SIZE = 200;
 	public static final int LOG_FILE_EXPIRY_TIMEOUT = 20;
 	public static final String NEW_LINE = "&_new_line";
 
@@ -125,7 +127,7 @@ public final class LogHelper {
 
 		public Pattern getPattern() {
 			if (pattern == null) {
-				pattern = Pattern.compile(patternStr);
+				pattern = Pattern.compile(patternStr, Pattern.CASE_INSENSITIVE);
 				return pattern;
 			}
 			return pattern;
@@ -181,7 +183,7 @@ public final class LogHelper {
 
 		public Pattern getPattern() {
 			if (pattern == null) {
-				pattern = Pattern.compile(patternStr);
+				pattern = Pattern.compile(patternStr, Pattern.CASE_INSENSITIVE);
 				return pattern;
 			}
 			return pattern;
@@ -231,6 +233,10 @@ public final class LogHelper {
 		int pages = (total / pageSize) + (((total % pageSize) > 0) ? 1 : 0);
 		pages = (pages < 1) ? 1 : pages;
 		return pages;
+	}
+	
+	public static String escapeHtml(String value) {
+		return StringUtils.replaceEach(value, new String[]{"&", "\"", "<", ">"}, new String[]{"&amp;", "&quot;", "&lt;", "&gt;"});
 	}
 	
 }

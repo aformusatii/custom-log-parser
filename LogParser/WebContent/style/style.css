@@ -6,7 +6,7 @@ body {
 
 table {width: 100%; border-collapse: collapse;}
 table td {border: solid 1px #FFFFFF;}
-table thead tr {background-color: #073E9C; color: #FFFFFF;}
+table thead tr {background-color: #073E9C; color: #FFFFFF; font-size: 10px;}
 table tbody tr:hover {background-color: #FFFFFF !important;}
 table tr.level_ERROR {background-color: #EE0020;}
 table tr.type_REQ {background-color: #C7DEEA;}
@@ -23,7 +23,8 @@ table tfoot tr input {
 	display: block;
 }
 table a {color: #065FBA;}
-
+table tbody td.c1 {cursor: pointer;}
+table tbody tr.selected {background-color: #419CE1 !important;}
 
 .topMenu {position: fixed; top: 0; left: 0; width: 100%; background-color: #152139;
 	/* -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";

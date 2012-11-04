@@ -45,7 +45,7 @@ public class LogReader implements ServletContextListener {
 			long lastPosition = (firstLine.equals(file.getFirstLine())) ? file.getLastPosition() : 0;
 			_reader.seek(lastPosition);
 			
-			byte[] buffer = new byte[8024];
+			byte[] buffer = new byte[60000];
 			int nRead;
 			while ((nRead=_reader.read(buffer)) != -1) {
 				data.write(buffer, 0, nRead);
@@ -80,7 +80,7 @@ public class LogReader implements ServletContextListener {
 	    }
 
 		System.out.println("End parsing from [" + file.getPath() 
-				+ "] in [" + (System.currentTimeMillis() - startTime) + "].");		
+				+ "] in [" + (System.currentTimeMillis() - startTime) + "]. Rows [" + file.getRows().size() + "]");		
 	}
 	
 	public static LogFile getLogFile(String filePath) {

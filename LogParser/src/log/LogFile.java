@@ -53,7 +53,7 @@ public class LogFile {
 		if (LogHelper.isNotBlank(searchText)) {
 			List<LogRow> result = new LinkedList<LogRow>();
 			if ("regex".equals(searchType)) {
-				Pattern p = Pattern.compile(searchText);
+				Pattern p = Pattern.compile(searchText, Pattern.CASE_INSENSITIVE);
 				for (LogRow row : rows) {
 					if (p.matcher(row.getDataWithoutNewLine()).matches()) {
 						result.add(row);	
